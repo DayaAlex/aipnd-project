@@ -1,17 +1,6 @@
 import argparse
 
-import torch
-from torchvision import transforms, datasets, models
-from torch import nn
-import torch.optim.lr_scheduler as lr_scheduler
-#from torchsummary import summary
 
-import json
-from tqdm import tqdm
-
-from PIL import Image
-import matplotlib.pyplot as plt
-import numpy as np
 
 
 parser = argparse.ArgumentParser()
@@ -71,6 +60,18 @@ lr = input.learning_rate
 epochs = input.epochs
 gpu = input.gpu
 
+import torch
+from torchvision import transforms, datasets, models
+from torch import nn
+import torch.optim.lr_scheduler as lr_scheduler
+#from torchsummary import summary
+
+import json
+from tqdm import tqdm
+
+from PIL import Image
+import matplotlib.pyplot as plt
+import numpy as np
 
 #scheduler, optimizer
 criterion = nn.NLLLoss()

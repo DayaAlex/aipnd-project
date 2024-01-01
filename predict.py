@@ -1,4 +1,46 @@
 
+import argparse
+
+parser_next = argparse.ArgumentParser()
+
+parser_next.add_argument('--path_to_image',
+                               type = str,
+                               default = '/Users/dalex/Udacity/aipnd-project/flower_data/test/6/image_07173.jpg',
+                                help = 'Path to test image, default: /Users/dalex/Udacity/aipnd-project/flower_data/test/6/image_07173.jpg '
+)
+
+parser_next.add_argument('--top_k',
+                               type = int,
+                               default = 5,
+                                help = 'select the number of top predictions required, default = 5'
+)
+
+parser_next.add_argument('--category_names',
+                               type = str,
+                               default = 'cat_to_name.json',
+                                help = 'Path to labels dictionary(JSON file) containg mapping of class and flower names'
+)
+
+parser_next.add_argument('--checkpoint',
+                               type = str,
+                               default = 'checkpoint.pth',
+                                help = 'Path to checkpoint'
+)
+
+parser_next.add_argument('--gpu',
+                               type = str,
+                               default = 'gpu',
+                                help = 'Perform inference using GPU(gpu) or CPU(cpu). Default:gpu'
+)
+
+input_args = parser_next.parse_args()
+
+image_path = input_args.path_to_image
+checkpt_path = input_args.checkpoint
+device = input_args.gpu
+topk = input_args.top_k
+labels = input_args.category_names
+
 import torch
 
 from train import build_model, optimizer, scheduler
@@ -6,45 +48,6 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
 import json
-import argparse
-
-parser = argparse.add_argument('path_to_image',
-                               type = str,
-                               default = '/Users/dalex/Udacity/aipnd-project/flower_data/test/6/image_07173.jpg',
-                                help = 'Path to test image, default: /Users/dalex/Udacity/aipnd-project/flower_data/test/6/image_07173.jpg '
-)
-
-parser = argparse.add_argument('--top_k',
-                               type = int,
-                               default = 5,
-                                help = 'select the number of top predictions required, default = 5'
-)
-
-parser = argparse.add_argument('--category_names',
-                               type = str,
-                               default = 'cat_to_name.json',
-                                help = 'Path to labels dictionary(JSON file) containg mapping of class and flower names'
-)
-
-parser = argparse.add_argument('--checkpoint',
-                               type = str,
-                               default = 'checkpoint.pth',
-                                help = 'Path to checkpoint'
-)
-
-parser = argparse.add_argument('--gpu',
-                               type = str,
-                               default = 'gpu',
-                                help = 'Perform inference using GPU(gpu) or CPU(cpu). Default:gpu'
-)
-
-input = parser.parse_args()
-
-checkpt_path = input.checkpoint
-image_path = input.path_to_image
-device = input.gpu
-topk = input.top_k
-labels = input.category_names
 
 #SETTING DEVICE
 device = 'mps' if torch.backends.mps.is_available() else 'cuda' if device == 'gpu' else 'cpu'
@@ -62,7 +65,6 @@ def load_checkpoint(path):
     model.class_to_idx = checkpoint['class_to_idx']
     
     return model
-
 
 loaded_model = load_checkpoint(checkpt_path)
 
