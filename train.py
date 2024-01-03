@@ -1,7 +1,9 @@
 import argparse
-
-
-
+from torchvision import transforms, datasets
+from torch import nn
+#from torchsummary import summary
+from classifier_model import build_model, optim
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 
@@ -50,7 +52,6 @@ parser.add_argument('--gpu',
                     help = 'Select whether to use GPU("gpu")/CPU("cpu") for training, default =gpu'
 )
 
-
 input = parser.parse_args()
 data_dir = input.data_directory
 path_to_save = input.save_dir
@@ -59,19 +60,6 @@ hidden_layer = input.hidden_units
 lr = input.learning_rate
 epochs = input.epochs
 gpu = input.gpu
-
-import torch
-from torchvision import transforms, datasets, models
-from torch import nn
-import torch.optim.lr_scheduler as lr_scheduler
-#from torchsummary import summary
-
-import json
-from tqdm import tqdm
-
-from PIL import Image
-import matplotlib.pyplot as plt
-import numpy as np
 
 #scheduler, optimizer
 criterion = nn.NLLLoss()
@@ -112,61 +100,9 @@ class_to_idx = img_datasets['train'].class_to_idx
 
 
 #BUILDING MODEL ARCHITECTURE
-    
-
-def build_model(model_name='resnet50', hidden_layer = 1000):
-    if model_name == 'resnet50':
-    
-        model = models.resnet50(pretrained=True)
-
-        for param in model.parameters():
-            param.requires_grad = False
-    
-        in_features = model.fc.in_features
-
-        classifier = nn.Sequential(
-                                  nn.BatchNorm1d(num_features=in_features),
-                                  nn.Linear(in_features, hidden_layer),
-                                  nn.ReLU(), 
-                                  nn.BatchNorm1d(num_features=hidden_layer), 
-                                  nn.Linear(hidden_layer,102),
-                                  nn.LogSoftmax(dim = 1)  
-                                )  
-                                    
-        model.fc = classifier
-        
-    elif model_name =='densenet_121':
-        
-        model = models.densenet121(pretrained=True)
-        
-        for param in model.parameters():
-            param.requires_grad = False
-
-        in_features = model.classifier.in_features
-
-        classifier= nn.Sequential(
-                                  nn.BatchNorm1d(num_features=in_features),
-                                  nn.Linear(in_features, hidden_layer),
-                                  nn.ReLU(),
-                                  nn.BatchNorm1d(num_features=hidden_layer),
-                                  nn.Dropout(0.2),  
-                                  nn.Linear(hidden_layer,102),
-                                  nn.LogSoftmax(dim = 1)  
-                                ) 
-        
-        model.classifier = classifier
-    
-    return model    
 
 new_model = build_model(model_name,hidden_layer)
-
-if model_name == 'densenet_121':
-    optimizer = torch.optim.Adam(new_model.classifier.parameters(), lr = lr)
-else:
-    optimizer = torch.optim.Adam(new_model.fc.parameters(), lr = lr)
-
-scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=4, verbose=True)
-
+optimizer, scheduler = optim(model_name, new_model,lr)
 
 #TRAINING and VALIDATION
 train_losses, valid_losses, test_losses, val_acc, test_acc = [],[],[],[],[]

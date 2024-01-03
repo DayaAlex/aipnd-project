@@ -1,5 +1,12 @@
-
+print("running predict.py")
 import argparse
+import torch
+
+from classifier_model import build_model, optim
+from PIL import Image
+import matplotlib.pyplot as plt
+import numpy as np
+import json
 
 parser_next = argparse.ArgumentParser()
 
@@ -23,7 +30,7 @@ parser_next.add_argument('--category_names',
 
 parser_next.add_argument('--checkpoint',
                                type = str,
-                               default = 'checkpoint.pth',
+                               default = './checkpoint.pth',
                                 help = 'Path to checkpoint'
 )
 
@@ -41,13 +48,6 @@ device = input_args.gpu
 topk = input_args.top_k
 labels = input_args.category_names
 
-import torch
-
-from train import build_model, optimizer, scheduler
-from PIL import Image
-import matplotlib.pyplot as plt
-import numpy as np
-import json
 
 #SETTING DEVICE
 device = 'mps' if torch.backends.mps.is_available() else 'cuda' if device == 'gpu' else 'cpu'
@@ -58,7 +58,7 @@ def load_checkpoint(path):
     checkpoint = torch.load(path)
     name = checkpoint['model_name']
     model = build_model(name)
-    
+    optimizer, scheduler = optim(name,model)
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
     model.load_state_dict(checkpoint['state_dict'])
