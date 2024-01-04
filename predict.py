@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 
+
 parser_next = argparse.ArgumentParser()
 
 parser_next.add_argument('--path_to_image',
@@ -123,11 +124,13 @@ def predict(image_path, model, topk=5):
     print('prediction going on....')
     # TODO: Implement the code to predict the class from an image file
     image = process_image(image_path)
-    imshow(image)
+    #imshow(image)
+    #plt.show()
     image = torch.FloatTensor(image)
     image.unsqueeze_(0) # batch dimension
     image = image.to(device)
     
+    model.to(device)
     model.eval()
     with torch.no_grad():
         output = model(image)
@@ -138,7 +141,7 @@ def predict(image_path, model, topk=5):
     top_5_prob = top_5_prob.squeeze().tolist()
     top_5_class = top_5_class.squeeze().tolist()#indexes
     
-    top_5_class_names = [model.idx_to_class[idx] for idx in top_5_class]
+    top_5_class_names = [idx_to_class[idx] for idx in top_5_class]
     
     return top_5_prob, top_5_class_names
 

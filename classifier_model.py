@@ -48,12 +48,12 @@ def build_model(model_name='resnet50', hidden_layer = 1000):
     
     return model    
 
-def optim(model_name, model):
+def optim(model_name, model, lr=0.01):
 
     if model_name == 'densenet_121':
-        optimizer = torch.optim.Adam(model.classifier.parameters(), lr = 0.01)
+        optimizer = torch.optim.Adam(model.classifier.parameters(), lr )
     else:
-        optimizer = torch.optim.Adam(model.fc.parameters(), lr = 0.01)
+        optimizer = torch.optim.Adam(model.fc.parameters(), lr )
 
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=4, verbose=True)
 
